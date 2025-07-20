@@ -1,7 +1,8 @@
 import asyncio
 import logging
 from typing import List
-from dawg_python import CompletionDAWG
+Words.dawg = CompletionDAWG()
+Words.dawg.load('/home/darkgame/Infinity-words/words.dawg')
 
 from .constants import WORDLIST_SOURCE
 
