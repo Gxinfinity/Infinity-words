@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from typing import List
-from dawg_python import CompletionDAWG  # dawg-python library
+from dawg_python import CompletionDAWG
 
 from .constants import WORDLIST_SOURCE
 
@@ -26,14 +26,13 @@ class Words:
                 res = await conn.fetch("SELECT word FROM wordlist WHERE accepted;")
                 return [row[0] for row in res]
 
-        # Fetch both sources in parallel
-        source_task = asyncio.create_task(get_words_from_source())
-        db_task = asyncio.create_task(get_words_from_db())
+        source_words, db_words = await asyncio.gather(
+            get_words_from_source(), get_words_from_db()
+        )
 
-        wordlist = (await source_task) + (await db_task)
-        wordlist = [w.lower() for w in wordlist if w.isalpha()]
+        wordlist = [w.lower() for w in source_words + db_words if w.isalpha()]
 
-        # Create a DAWG using fromkeys (dawg-python method)
+        # Only works with dawg-python
         Words.dawg = CompletionDAWG.fromkeys(wordlist)
         Words.count = len(Words.dawg)
 
