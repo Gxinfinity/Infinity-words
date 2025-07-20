@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import List
 
-from dawg_python import CompletionDAWG
+from dawg_python import DAWG  # 👈 Yeh line badli hai
 
 from .constants import WORDLIST_SOURCE
 
@@ -10,8 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class Words:
-    # Directed acyclic word graph (DAWG)
-    dawg: CompletionDAWG
+    dawg: DAWG
     count: int
 
     @staticmethod
@@ -29,18 +28,15 @@ class Words:
                 res = await conn.fetch("SELECT word FROM wordlist WHERE accepted;")
                 return [row[0] for row in res]
 
-        # दोनों काम साथ-साथ
         source_task = asyncio.create_task(get_words_from_source())
-        db_task    = asyncio.create_task(get_words_from_db())
-        wordlist   = await source_task + await db_task
+        db_task = asyncio.create_task(get_words_from_db())
+        wordlist = await source_task + await db_task
 
         logger.info("Processing words")
         wordlist = [w.lower() for w in wordlist if w.isalpha()]
 
-        # ---- DAWG बनाना (v0.7.2 compatible) ----
-        Words.dawg = CompletionDAWG()
-        Words.dawg.build(wordlist)          # ← यही तरीका v0.7.2 में काम करता है
+        Words.dawg = DAWG()  # 👈 Yeh bhi badla
+        Words.dawg.build(wordlist)  # 👈 Ab ye error nahi dega
         Words.count = len(Words.dawg.keys())
-        # ----------------------------------------
 
         logger.info("DAWG updated")
