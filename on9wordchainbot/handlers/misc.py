@@ -8,7 +8,7 @@ from ..utils import get_user, add_user, get_group, add_group
 
 
 START_TEXT = """
-Hi {user}!
+Hi👋 {user}!
 
 I'm {bot} – your fun companion from 𝑽𝒆𝒍𝒐𝒄𝒊𝒕𝒚 𝐗 𝗪𝗼𝗿𝗱 𝗖𝗵𝗮𝗶𝗻 🎮
 
