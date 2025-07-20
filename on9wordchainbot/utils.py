@@ -100,3 +100,17 @@ def send_groups_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
         await f(message, *args, **kwargs)
 
     return inner
+
+
+# ✅ Add missing user/group database helpers
+def get_user(user_id: int):
+    return False  # Dummy function, replace with actual DB call
+
+def add_user(user_id: int, username: str, first_name: str):
+    pass  # Dummy function, replace with actual DB call
+
+def get_group(chat_id: int):
+    return False  # Dummy function, replace with actual DB call
+
+def add_group(chat_id: int, title: str):
+    pass  # Dummy function, replace with actual DB call
