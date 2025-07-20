@@ -29,18 +29,23 @@ class Words:
             from . import pool
 
             async with pool.acquire() as conn:
-                res = await conn.fetch("SELECT word from wordlist WHERE accepted;")
+                res = await conn.fetch("SELECT word FROM wordlist WHERE accepted;")
                 return [row[0] for row in res]
 
+        # Run both tasks concurrently
         source_task = asyncio.create_task(get_words_from_source())
         db_task = asyncio.create_task(get_words_from_db())
+
         wordlist = await source_task + await db_task
 
         logger.info("Processing words")
 
+        # Clean and filter the words
         wordlist = [w.lower() for w in wordlist if w.isalpha()]
+
+        # Build the DAWG
         Words.dawg = CompletionDAWG()
-Words.dawg.load_words(wordlist)
+        Words.dawg.load_words(wordlist)
         Words.count = len(Words.dawg.keys())
 
         logger.info("DAWG updated")
