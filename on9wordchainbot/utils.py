@@ -47,3 +47,6 @@ def inline_keyboard_from_button(button: types.InlineKeyboardButton) -> types.Inl
 ADD_TO_GROUP_KEYBOARD = inline_keyboard_from_button(
     types.InlineKeyboardButton("➕ Add Me To Group", url="https://t.me/on9wordchainbot?startgroup=true")
 )
+
+async def send_admin_group(*args, **kwargs) -> types.Message:
+    return await bot.send_message(ADMIN_GROUP_ID, *args, **kwargs)
