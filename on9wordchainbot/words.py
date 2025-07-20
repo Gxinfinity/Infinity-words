@@ -1,16 +1,14 @@
 import asyncio
 import logging
 from typing import List
-
-from dawg_python import DAWG  # 👈 Yeh line badli hai
+from dawg_python import CompletionDAWG  # dawg-python library
 
 from .constants import WORDLIST_SOURCE
 
 logger = logging.getLogger(__name__)
 
-
 class Words:
-    dawg: DAWG
+    dawg: CompletionDAWG
     count: int
 
     @staticmethod
@@ -28,15 +26,15 @@ class Words:
                 res = await conn.fetch("SELECT word FROM wordlist WHERE accepted;")
                 return [row[0] for row in res]
 
+        # Fetch both sources in parallel
         source_task = asyncio.create_task(get_words_from_source())
         db_task = asyncio.create_task(get_words_from_db())
-        wordlist = await source_task + await db_task
 
-        logger.info("Processing words")
+        wordlist = (await source_task) + (await db_task)
         wordlist = [w.lower() for w in wordlist if w.isalpha()]
 
-        Words.dawg = DAWG()  # 👈 Yeh bhi badla
-        Words.dawg.build(wordlist)  # 👈 Ab ye error nahi dega
-        Words.count = len(Words.dawg.keys())
+        # Create a DAWG using fromkeys (dawg-python method)
+        Words.dawg = CompletionDAWG.fromkeys(wordlist)
+        Words.count = len(Words.dawg)
 
-        logger.info("DAWG updated")
+        logger.info(f"DAWG updated with {Words.count} words.")
