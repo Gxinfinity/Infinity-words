@@ -1,16 +1,15 @@
 import asyncio
 import logging
-from typing import List
-Words.dawg = CompletionDAWG()
-Words.dawg.load('/home/darkgame/Infinity-words/words.dawg')
+from typing import List, Set
 
 from .constants import WORDLIST_SOURCE
 
 logger = logging.getLogger(__name__)
 
+
 class Words:
-    dawg: CompletionDAWG
-    count: int
+    dawg: Set[str] = set()
+    count: int = 0
 
     @staticmethod
     async def update() -> None:
@@ -33,8 +32,7 @@ class Words:
 
         wordlist = [w.lower() for w in source_words + db_words if w.isalpha()]
 
-        # Only works with dawg-python
-        Words.dawg = CompletionDAWG.fromkeys(wordlist)
+        Words.dawg = set(wordlist)
         Words.count = len(Words.dawg)
 
-        logger.info(f"DAWG updated with {Words.count} words.")
+        logger.info(f"Word set updated
