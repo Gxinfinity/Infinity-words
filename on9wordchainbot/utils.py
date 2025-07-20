@@ -9,7 +9,10 @@ from aiogram import types
 from . import bot, on9bot, pool
 from .constants import ADMIN_GROUP_ID, VIP
 from .words import Words
+from .database import cur, conn  # ✅ needed for DB functions
 
+
+# ----- WORD UTILS -----
 
 def is_word(s: str) -> bool:
     return all(c in ascii_lowercase for c in s)
@@ -49,6 +52,8 @@ def get_random_word(
     return random.choice(words) if words else None
 
 
+# ----- BOT + DONATION UTILS -----
+
 async def send_admin_group(*args: Any, **kwargs: Any) -> types.Message:
     return await bot.send_message(ADMIN_GROUP_ID, *args, **kwargs)
 
@@ -65,6 +70,8 @@ async def has_star(user_id: int) -> bool:
     return user_id in VIP or user_id == on9bot.id or await amt_donated(user_id)
 
 
+# ----- INLINE KEYBOARD -----
+
 def inline_keyboard_from_button(button: types.InlineKeyboardButton) -> types.InlineKeyboardMarkup:
     return types.InlineKeyboardMarkup(inline_keyboard=[[button]])
 
@@ -77,6 +84,8 @@ ADD_ON9BOT_TO_GROUP_KEYBOARD = inline_keyboard_from_button(
 )
 
 
+# ----- DECORATORS -----
+
 def send_private_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
     @wraps(f)
     async def inner(message: types.Message, *args: Any, **kwargs: Any) -> None:
@@ -84,7 +93,6 @@ def send_private_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
             await message.reply("Please use this command in private.", allow_sending_without_reply=True)
             return
         await f(message, *args, **kwargs)
-
     return inner
 
 
@@ -98,5 +106,26 @@ def send_groups_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
             )
             return
         await f(message, *args, **kwargs)
-
     return inner
+
+
+# ----- DATABASE FUNCTIONS (needed for /start command) -----
+
+def get_user(user_id: int) -> bool:
+    cur.execute("SELECT 1 FROM users WHERE user_id = %s", (user_id,))
+    return cur.fetchone() is not None
+
+
+def add_user(user_id: int, full_name: str) -> None:
+    cur.execute("INSERT INTO users (user_id, full_name) VALUES (%s, %s)", (user_id, full_name))
+    conn.commit()
+
+
+def get_group(chat_id: int) -> bool:
+    cur.execute("SELECT 1 FROM groups WHERE chat_id = %s", (chat_id,))
+    return cur.fetchone() is not None
+
+
+def add_group(chat_id: int, title: str) -> None:
+    cur.execute("INSERT INTO groups (chat_id, title) VALUES (%s, %s)", (chat_id, title))
+    conn.commit()
