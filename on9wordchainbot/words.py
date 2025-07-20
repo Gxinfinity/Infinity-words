@@ -39,7 +39,8 @@ class Words:
         logger.info("Processing words")
 
         wordlist = [w.lower() for w in wordlist if w.isalpha()]
-        Words.dawg = CompletionDAWG(wordlist)
+        Words.dawg = CompletionDAWG()
+Words.dawg.load_words(wordlist)
         Words.count = len(Words.dawg.keys())
 
         logger.info("DAWG updated")
