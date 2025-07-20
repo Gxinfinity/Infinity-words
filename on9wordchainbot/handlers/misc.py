@@ -4,12 +4,13 @@ from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from ..utils import get_user, add_user, get_group, add_group
 
 START_TEXT = """
-Hi {user}!
+👋 Hi {user}!
 
-I'm {bot} – your fun companion from 𝑽𝒆𝒍𝒐𝒄𝒊𝒕𝒚 𝐗 𝗪𝗼𝗿𝗱 𝗖𝗵𝗮𝗶𝗻 🎮
+I'm {bot}, your friendly word chain host from 𝑽𝒆𝒍𝒐𝒄𝒊𝒕𝒚 𝐗 𝗪𝗼𝗿𝗱 𝗖𝗵𝗮𝗶𝗻 🎮
 
-Play exciting word chain games with your friends in Telegram groups.
-➕ Add me to a group and type `/start` to begin the fun!
+🔠 Enjoy exciting word chain games in your Telegram groups.
+
+➕ Add me to a group and send `/start` to begin the fun!
 """
 
 @Client.on_message(filters.command(["start", "help"]))
@@ -18,11 +19,11 @@ async def start(client: Client, message: Message):
     user_name = message.from_user.username or ""
     first_name = message.from_user.first_name or "User"
 
-    # Save user if not already saved
+    # Save user
     if not await get_user(user_id):
         await add_user(user_id, user_name, first_name)
 
-    # Group chat handling
+    # If message is from group
     if message.chat.type in ["group", "supergroup"]:
         if not await get_group(message.chat.id):
             await add_group(message.chat.id, message.chat.title)
@@ -34,8 +35,6 @@ async def start(client: Client, message: Message):
                 bot=(await client.get_me()).first_name
             )
         )
-
-    # Private chat handling
     else:
         await message.reply_photo(
             photo="https://graph.org/file/046efb7c1411d26be3145-a751e2c61b39111484.jpg",
@@ -49,6 +48,6 @@ async def start(client: Client, message: Message):
                     InlineKeyboardButton("👥 Group", url="https://t.me/+5vPKU47S6HNiNjY1"),
                     InlineKeyboardButton("🔄 Updates", url="https://t.me/Who_Cares_qt")
                 ],
-                [InlineKeyboardButton("ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]", url="https://t.me/dark_x_knight_musiczz_support")]
+                [InlineKeyboardButton("🤖 GX Bots Network", url="https://t.me/dark_x_knight_musiczz_support")]
             ])
         )
