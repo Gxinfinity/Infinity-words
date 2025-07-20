@@ -2,7 +2,7 @@ import asyncio
 import logging
 from typing import List
 
-from dawg import CompletionDAWG
+from dawg_python import CompletionDAWG
 
 from .constants import WORDLIST_SOURCE
 
