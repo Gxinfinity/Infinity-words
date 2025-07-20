@@ -1,11 +1,13 @@
 import asyncio
 import logging
 from typing import List
+
 from dawg_python import CompletionDAWG
 
 from .constants import WORDLIST_SOURCE
 
 logger = logging.getLogger(__name__)
+
 
 class Words:
     # Directed acyclic word graph (DAWG)
@@ -14,7 +16,6 @@ class Words:
 
     @staticmethod
     async def update() -> None:
-        # Words retrieved from online repo and database table with additional approved words
         logger.info("Retrieving words")
 
         async def get_words_from_source() -> List[str]:
@@ -28,18 +29,18 @@ class Words:
                 res = await conn.fetch("SELECT word FROM wordlist WHERE accepted;")
                 return [row[0] for row in res]
 
-        # Run both tasks concurrently
+        # दोनों काम साथ-साथ
         source_task = asyncio.create_task(get_words_from_source())
-        db_task = asyncio.create_task(get_words_from_db())
-        wordlist = await source_task + await db_task
+        db_task    = asyncio.create_task(get_words_from_db())
+        wordlist   = await source_task + await db_task
 
         logger.info("Processing words")
-
-        # Filter and lowercase words
         wordlist = [w.lower() for w in wordlist if w.isalpha()]
 
-        # ✅ FIXED: Pass words directly into CompletionDAWG constructor
-        Words.dawg = CompletionDAWG(wordlist)
+        # ---- DAWG बनाना (v0.7.2 compatible) ----
+        Words.dawg = CompletionDAWG()
+        Words.dawg.build(wordlist)          # ← यही तरीका v0.7.2 में काम करता है
         Words.count = len(Words.dawg.keys())
+        # ----------------------------------------
 
         logger.info("DAWG updated")
