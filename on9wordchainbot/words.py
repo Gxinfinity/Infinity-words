@@ -35,4 +35,4 @@ class Words:
         Words.dawg = set(wordlist)
         Words.count = len(Words.dawg)
 
-        logger.info(f"Word set updated
+        logger.info(f"Word set updated with {Words.count} words.")
