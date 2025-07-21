@@ -36,7 +36,7 @@ async def cmd_help(message: types.Message) -> None:
             "in *English / Cantonese* if you have issues with the bot.\n"
             "Official Group: https://t.me/+5vPKU47S6HNiNjY1\n"
             "Word Additions Channel (with status updates): @dark_x_knight_musiczz_support\n"
-            "Source Code: [jonowo/on9wordchainbot](https://github.com/Gx-Dark/Velocitypro)\n"
+            "Source Code: [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](https://t.me/+5vPKU47S6HNiNjY1)\n"
             "Epic icon designed by [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](tg://user?id=7926944005)"
         ),
         allow_sending_without_reply=True
