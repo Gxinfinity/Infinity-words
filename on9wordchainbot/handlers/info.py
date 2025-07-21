@@ -13,19 +13,8 @@ from ..utils import inline_keyboard_from_button, send_private_only_message
 from ..words import Words
 
 
-@dp.message_handler(CommandStart("help"), ChatTypeFilter([types.ChatType.PRIVATE]))
-@dp.message_handler(CommandHelp())
+@dp.message_handler(CommandHelp(), ChatTypeFilter([types.ChatType.PRIVATE]))
 async def cmd_help(message: types.Message) -> None:
-    if message.chat.id < 0:
-        await message.reply(
-            "Please use this command in private.",
-            allow_sending_without_reply=True,
-            reply_markup=inline_keyboard_from_button(
-                types.InlineKeyboardButton("Help message", url=await get_start_link("help"))
-            )
-        )
-        return
-
     await message.reply(
         (
             "/gameinfo - Game mode descriptions<br>"
@@ -42,6 +31,10 @@ async def cmd_help(message: types.Message) -> None:
         parse_mode=types.ParseMode.HTML,
         allow_sending_without_reply=True
     )
+
+@dp.message_handler(CommandStart("help"), ChatTypeFilter([types.ChatType.PRIVATE]))
+async def cmd_start_help(message: types.Message) -> None:
+    await cmd_help(message)
 
 @dp.message_handler(commands="gameinfo")
 @send_private_only_message
