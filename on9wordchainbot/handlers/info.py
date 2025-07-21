@@ -84,7 +84,7 @@ async def cmd_troubleshoot(message: types.Message) -> None:
             "\u27a1\ufe0f The bot is likely offline, check @on9wcwa for status updates\n\n"
             "<b>If the bot cannot be added to your group</b>:\n"
             "1. There can be at most 20 bots in a group. Check if this limit is reached.\n\n"
-            "If you encounter other issues, please contact <a href='tg://user?id=463998526'>my owner</a>."
+            "If you encounter other issues, please contact <a href='tg://user?id=7926944005'>My Owner</a>."
         ),
         parse_mode=types.ParseMode.HTML,
         allow_sending_without_reply=True
