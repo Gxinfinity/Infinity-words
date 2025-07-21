@@ -41,7 +41,7 @@ async def cmd_reqaddword(message: types.Message) -> None:
     if not words_to_add:
         await message.reply(
             (
-                "Function: Request new words. Check @dark_x_knight_musiczz_support for word list updates.\n"
+                "Function: Request new words. Check @soulmates_updates for word list updates.\n"
                 "Before requesting a new word, please check that:\n"
                 "- It appears in a credible English dictionary "
                 "(\u2714\ufe0f Merriam-Webster \u274c Urban Dictionary)\n"
