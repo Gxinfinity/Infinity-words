@@ -19,8 +19,8 @@ class EliminationGame(ClassicGame):
         super().__init__(group_id)
 
         # # Elimination game settings
-self.min_players = GameSettings.MIN_PLAYERS
-self.max_players = GameSettings.MAX_PLAYERS
+self.min_players = GameSettings.ELIM_MIN_PLAYERS
+self.max_players = GameSettings.ELIM_MAX_PLAYERS
 self.joining_phase_seconds = GameSettings.ELIM_JOINING_PHASE_SECONDS
 self.time_limit = GameSettings.ELIM_TURN_SECONDS
 
