@@ -19,9 +19,9 @@ class EliminationGame(ClassicGame):
         super().__init__(group_id)
 
         # Elimination game settings
-        self.min_players = GameSettings.ELIM_MIN_PLAYERS
-        self.max_players = GameSettings.ELIM_MAX_PLAYERS
-        self.time_left = GameSettings.ELIM_JOINING_PHASE_SECONDS
+        self.min_players = GameSettings.MIN_PLAYERS
+        self.max_players = 
+GameSettings.MAX_PLAYERS GameSettings.ELIM_JOINING_PHASE_SECONDS
         self.time_limit = GameSettings.ELIM_TURN_SECONDS
         # No minimum letters limit (though a word must contain at least one letter by definition)
         # Since answering words with few letters will eventually lead to elimination
