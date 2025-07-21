@@ -32,12 +32,12 @@ async def cmd_help(message: types.Message) -> None:
             "/troubleshoot - Resolve common issues\n"
             "/reqaddword - Request addition of words\n"
             "/feedback - Send feedback to bot owner\n\n"
-            "You may message [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](tg://user?id=463998526) "
+            "You may message [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](tg://user?id=7926944005) "
             "in *English / Cantonese* if you have issues with the bot.\n"
             "Official Group: https://t.me/+5vPKU47S6HNiNjY1\n"
             "Word Additions Channel (with status updates): @dark_x_knight_musiczz_support\n"
             "Source Code: [jonowo/on9wordchainbot](https://github.com/Gx-Dark/Velocitypro)\n"
-            "Epic icon designed by [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](tg://user?id=303527690)"
+            "Epic icon designed by [ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]](tg://user?id=7926944005)"
         ),
         allow_sending_without_reply=True
     )
@@ -81,7 +81,7 @@ async def cmd_troubleshoot(message: types.Message) -> None:
             "3. Someone spammed commands in your group recently "
             "\u27a1\ufe0f The bot is rate limited in your group, wait patiently\n"
             "4. The bot does not respond to <code>/ping</code> "
-            "\u27a1\ufe0f The bot is likely offline, check @on9wcwa for status updates\n\n"
+            "\u27a1\ufe0f The bot is likely offline, check @dark_x_knight_musiczz_support for status updates\n\n"
             "<b>If the bot cannot be added to your group</b>:\n"
             "1. There can be at most 20 bots in a group. Check if this limit is reached.\n\n"
             "If you encounter other issues, please contact <a href='tg://user?id=7926944005'>My Owner</a>."
