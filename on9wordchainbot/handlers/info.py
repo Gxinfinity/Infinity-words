@@ -17,15 +17,15 @@ from ..words import Words
 async def cmd_help(message: types.Message) -> None:
     await message.reply(
         (
-            "/gameinfo - Game mode descriptions<br>"
-            "/troubleshoot - Resolve common issues<br>"
-            "/reqaddword - Request addition of words<br>"
-            "/feedback - Send feedback to bot owner<br><br>"
+            "/gameinfo - Game mode descriptions\n"
+            "/troubleshoot - Resolve common issues\n"
+            "/reqaddword - Request addition of words\n"
+            "/feedback - Send feedback to bot owner\n\n"
             "You may message <a href='tg://user?id=7926944005'>ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]</a> "
-            "in <i>English / Cantonese</i> if you have issues with the bot.<br>"
-            "Official Group: <a href='https://t.me/+5vPKU47S6HNiNjY1'>https://t.me/+5vPKU47S6HNiNjY1</a><br>"
-            "Word Additions Channel (with status updates): <a href='https://t.me/dark_x_knight_musiczz_support'>@dark_x_knight_musiczz_support</a><br>"
-            "Source Code: <a href='https://t.me/+5vPKU47S6HNiNjY1'>ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]</a><br>"
+            "in <i>English / Cantonese</i> if you have issues with the bot.\n"
+            "Official Group: <a href='https://t.me/+5vPKU47S6HNiNjY1'>https://t.me/+5vPKU47S6HNiNjY1</a>\n"
+            "Word Additions Channel (with status updates): <a href='https://t.me/dark_x_knight_musiczz_support'>@dark_x_knight_musiczz_support</a>\n"
+            "Source Code: <a href='https://t.me/+5vPKU47S6HNiNjY1'>ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]</a>\n"
             "Epic icon designed by <a href='tg://user?id=7926944005'>ɢx ᴅᴀʀᴋ ʙᴏᴛs [🇮🇳]</a>"
         ),
         parse_mode=types.ParseMode.HTML,
