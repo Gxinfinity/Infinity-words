@@ -12,22 +12,24 @@ from ..words import Words
 @dp.message_handler(commands=["exist", "exists"])
 async def cmd_exists(message: types.Message) -> None:
     word = message.text.partition(" ")[2].lower()
-    if not word or not is_word(word):  # No proper argument given
+    if not word or not is_word(word):  # No valid argument given
         rmsg = message.reply_to_message
         if not rmsg or not rmsg.text or not is_word(rmsg.text.lower()):
             await message.reply(
                 (
-                    "Function: Check if a word is in my dictionary. "
-                    "Use /reqaddword if you want to request addition of new words.\n"
-                    "Usage: `/exists word`"
+                    "<b>Function:</b> Check if a word is in my dictionary.\n"
+                    "Use <code>/reqaddword</code> if you want to request addition of new words.\n"
+                    "<b>Usage:</b> <code>/exists word</code>"
                 ),
+                parse_mode=types.ParseMode.HTML,
                 allow_sending_without_reply=True
             )
             return
         word = rmsg.text.lower()
 
     await message.reply(
-        f"_{word.capitalize()}_ is *{'' if check_word_existence(word) else 'not '}in* my dictionary.",
+        f"<i>{word.capitalize()}</i> is <b>{'' if check_word_existence(word) else 'not '}</b>in my dictionary.",
+        parse_mode=types.ParseMode.HTML,
         allow_sending_without_reply=True
     )
 
@@ -41,16 +43,15 @@ async def cmd_reqaddword(message: types.Message) -> None:
     if not words_to_add:
         await message.reply(
             (
-                "Function: Request new words. Check @soulmates_updates for word list updates.\n"
-                "Before requesting a new word, please check that:\n"
-                "- It appears in a credible English dictionary "
-                "(\u2714\ufe0f Merriam-Webster \u274c Urban Dictionary)\n"
-                "- It is not a [proper noun](https://simple.wikipedia.org/wiki/Proper_noun) "
-                "(\u274c names)\n"
-                "  (existing proper nouns in the word list and nationalities are exempt)\n"
-                "Invalid words will delay the processing of submissions.\n"
-                "Usage: `/reqaddword word1 word2 ...`"
+                "<b>Function:</b> Request new words. Check <a href='https://t.me/soulmates_updates'>@soulmates_updates</a> for word list updates.\n\n"
+                "<b>Before requesting a new word, please ensure:</b>\n"
+                "• It appears in a credible English dictionary (✔️ Merriam-Webster ❌ Urban Dictionary)\n"
+                "• It is not a <a href='https://simple.wikipedia.org/wiki/Proper_noun'>proper noun</a> (❌ names)\n"
+                "  (existing proper nouns and nationalities are exempt)\n"
+                "❗ Invalid words will delay the processing of submissions.\n\n"
+                "<b>Usage:</b> <code>/reqaddword word1 word2 ...</code>"
             ),
+            parse_mode=types.ParseMode.HTML,
             allow_sending_without_reply=True
         )
         return
@@ -58,9 +59,9 @@ async def cmd_reqaddword(message: types.Message) -> None:
     existing = []
     rejected = []
     rejected_with_reason = []
-    for w in words_to_add[:]:  # Iterate through a copy so removal of elements is possible
+    for w in words_to_add[:]:
         if check_word_existence(w):
-            existing.append(f"_{w.capitalize()}_")
+            existing.append(f"<i>{w.capitalize()}</i>")
             words_to_add.remove(w)
 
     async with pool.acquire() as conn:
@@ -69,20 +70,20 @@ async def cmd_reqaddword(message: types.Message) -> None:
         if word not in words_to_add:
             continue
         words_to_add.remove(word)
-        word = f"_{word.capitalize()}_"
+        word = f"<i>{word.capitalize()}</i>"
         if reason:
             rejected_with_reason.append((word, reason))
         else:
             rejected.append(word)
 
-    text = ""
+    lines = []
     if words_to_add:
-        text += f"Submitted {', '.join([f'_{w.capitalize()}_' for w in words_to_add])} for approval.\n"
+        lines.append(f"Submitted {', '.join([f'<i>{w.capitalize()}</i>' for w in words_to_add])} for approval.")
         asyncio.create_task(
             send_admin_group(
                 message.from_user.get_mention(
                     name=message.from_user.full_name
-                         + (" \u2b50\ufe0f" if await has_star(message.from_user.id) else ""),
+                    + (" ⭐️" if await has_star(message.from_user.id) else ""),
                     as_html=True
                 )
                 + " is requesting the addition of "
@@ -92,53 +93,56 @@ async def cmd_reqaddword(message: types.Message) -> None:
             )
         )
     if existing:
-        text += f"{', '.join(existing)} {'is' if len(existing) == 1 else 'are'} already in the word list.\n"
+        lines.append(f"{', '.join(existing)} {'is' if len(existing)==1 else 'are'} already in the word list.")
     if rejected:
-        text += f"{', '.join(rejected)} {'was' if len(rejected) == 1 else 'were'} rejected.\n"
+        lines.append(f"{', '.join(rejected)} {'was' if len(rejected)==1 else 'were'} rejected.")
     for word, reason in rejected_with_reason:
-        text += f"{word} was rejected. Reason: {reason}.\n"
-    await message.reply(text, allow_sending_without_reply=True)
+        lines.append(f"{word} was rejected. Reason: {reason}.")
+
+    await message.reply("\n".join(lines), parse_mode=types.ParseMode.HTML, allow_sending_without_reply=True)
 
 
 @dp.message_handler(is_owner=True, commands=["addword", "addwords"])
 async def cmd_addwords(message: types.Message) -> None:
     words_to_add = [w for w in set(message.get_args().lower().split()) if is_word(w)]
     if not words_to_add:
-        await message.reply("where words", allow_sending_without_reply=True)
+        await message.reply("Please provide at least one valid word to add.", allow_sending_without_reply=True)
         return
 
     existing = []
     rejected = []
     rejected_with_reason = []
-    for w in words_to_add[:]:  # Cannot iterate while deleting
+    for w in words_to_add[:]:
         if check_word_existence(w):
-            existing.append(f"_{w.capitalize()}_")
+            existing.append(f"<i>{w.capitalize()}</i>")
             words_to_add.remove(w)
 
     async with pool.acquire() as conn:
         rej = await conn.fetch("SELECT word, reason FROM wordlist WHERE NOT accepted;")
-    for word, reason in rej:
-        if word not in words_to_add:
-            continue
-        words_to_add.remove(word)
-        word = f"_{word.capitalize()}_"
-        if reason:
-            rejected_with_reason.append((word, reason))
-        else:
-            rejected.append(word)
+        for word, reason in rej:
+            if word not in words_to_add:
+                continue
+            words_to_add.remove(word)
+            word = f"<i>{word.capitalize()}</i>"
+            if reason:
+                rejected_with_reason.append((word, reason))
+            else:
+                rejected.append(word)
 
-    text = ""
-    if words_to_add:
-        async with pool.acquire() as conn:
+        if words_to_add:
             await conn.copy_records_to_table("wordlist", records=[(w, True, None) for w in words_to_add])
-        text += f"Added {', '.join([f'_{w.capitalize()}_' for w in words_to_add])} to the word list.\n"
+
+    lines = []
+    if words_to_add:
+        lines.append(f"Added {', '.join([f'<i>{w.capitalize()}</i>' for w in words_to_add])} to the word list.")
     if existing:
-        text += f"{', '.join(existing)} {'is' if len(existing) == 1 else 'are'} already in the word list.\n"
+        lines.append(f"{', '.join(existing)} {'is' if len(existing)==1 else 'are'} already in the word list.")
     if rejected:
-        text += f"{', '.join(rejected)} {'was' if len(rejected) == 1 else 'were'} rejected.\n"
+        lines.append(f"{', '.join(rejected)} {'was' if len(rejected)==1 else 'were'} rejected.")
     for word, reason in rejected_with_reason:
-        text += f"{word} was rejected. Reason: {reason}.\n"
-    msg = await message.reply(text, allow_sending_without_reply=True)
+        lines.append(f"{word} was rejected. Reason: {reason}.")
+
+    msg = await message.reply("\n".join(lines), parse_mode=types.ParseMode.HTML, allow_sending_without_reply=True)
 
     if not words_to_add:
         return
@@ -146,12 +150,13 @@ async def cmd_addwords(message: types.Message) -> None:
     t = time.time()
     await Words.update()
     asyncio.create_task(
-        msg.edit_text(msg.md_text + f"\n\nWord list updated. Time taken: `{time.time() - t:.3f}s`")
+        msg.edit_text(msg.text + f"\n\nWord list updated. Time taken: <code>{time.time() - t:.3f}s</code>", parse_mode=types.ParseMode.HTML)
     )
     asyncio.create_task(
         bot.send_message(
             WORD_ADDITION_CHANNEL_ID,
-            f"Added {', '.join([f'_{w.capitalize()}_' for w in words_to_add])} to the word list.",
+            f"Added {', '.join([f'<i>{w.capitalize()}</i>' for w in words_to_add])} to the word list.",
+            parse_mode=types.ParseMode.HTML,
             disable_notification=True
         )
     )
@@ -174,15 +179,16 @@ async def cmd_rejword(message: types.Message) -> None:
                 reason.strip() or None
             )
 
-    word = word.capitalize()
+    word_cap = f"<i>{word.capitalize()}</i>"
     if r is None:
-        await message.reply(f"_{word}_ rejected.", allow_sending_without_reply=True)
+        await message.reply(f"{word_cap} rejected.", parse_mode=types.ParseMode.HTML, allow_sending_without_reply=True)
     elif r["accepted"]:
-        await message.reply(f"_{word}_ was accepted.", allow_sending_without_reply=True)
+        await message.reply(f"{word_cap} was accepted.", parse_mode=types.ParseMode.HTML, allow_sending_without_reply=True)
     elif not r["reason"]:
-        await message.reply(f"_{word}_ was already rejected.", allow_sending_without_reply=True)
+        await message.reply(f"{word_cap} was already rejected.", parse_mode=types.ParseMode.HTML, allow_sending_without_reply=True)
     else:
         await message.reply(
-            f"_{word}_ was already rejected. Reason: {r['reason']}.",
+            f"{word_cap} was already rejected. Reason: {r['reason']}.",
+            parse_mode=types.ParseMode.HTML,
             allow_sending_without_reply=True
         )
