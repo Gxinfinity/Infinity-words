@@ -6,7 +6,7 @@ from typing import Any, Callable, List, Optional, Set
 from aiocache import cached
 from aiogram import types
 
-from . import bot, on9bot, pool
+from . import bot, on9bot
 from .constants import ADMIN_GROUP_ID, VIP
 from .words import Words
 
@@ -53,16 +53,14 @@ async def send_admin_group(*args: Any, **kwargs: Any) -> types.Message:
     return await bot.send_message(ADMIN_GROUP_ID, *args, **kwargs)
 
 
+# ✅ Dummy donation check to avoid DB crash
 @cached(ttl=15)
 async def amt_donated(user_id: int) -> int:
-    async with pool.acquire() as conn:
-        amt = await conn.fetchval("SELECT SUM(amount) FROM donation WHERE user_id = $1;", user_id)
-        return amt or 0
-
+    return 0  # Disable donation feature safely
 
 @cached(ttl=15)
 async def has_star(user_id: int) -> bool:
-    return user_id in VIP or user_id == on9bot.id or await amt_donated(user_id)
+    return user_id in VIP or user_id == on9bot.id
 
 
 def inline_keyboard_from_button(button: types.InlineKeyboardButton) -> types.InlineKeyboardMarkup:
@@ -84,7 +82,6 @@ def send_private_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
             await message.reply("Please use this command in private.", allow_sending_without_reply=True)
             return
         await f(message, *args, **kwargs)
-
     return inner
 
 
@@ -98,11 +95,10 @@ def send_groups_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
             )
             return
         await f(message, *args, **kwargs)
-
     return inner
 
 
-# ✅ Dummy DB functions to avoid crashes
+# ✅ Dummy DB functions to prevent crash if DB is missing
 def get_user(user_id: int):
     return False
 
