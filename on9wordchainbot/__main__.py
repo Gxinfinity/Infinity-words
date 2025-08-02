@@ -16,7 +16,7 @@ getcontext().rounding = ROUND_HALF_UP
 
 async def on_startup(_) -> None:
     # Notify admin group
-   # await send_admin_group("Bot starting.")
+    await send_admin_group("Bot starting.")
 
     await Words.update()
 
