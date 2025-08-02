@@ -1,116 +1,49 @@
-import random
-from functools import wraps
-from string import ascii_lowercase
-from typing import Any, Callable, List, Optional, Set
-
-from aiocache import cached
 from aiogram import types
+from aiogram.types import Message
+from typing import Optional, Any
 
-from . import bot, on9bot
-from .constants import ADMIN_GROUP_ID, VIP
-from .words import Words
+from .constants import ADMIN_GROUP_ID
+from .filters import get_current_username
+from .models import Game, User
+from .words import get_next_word
+from .__main__ import bot
 
+def clean_word(word: str) -> str:
+    return word.strip().lower()
 
-def is_word(s: str) -> bool:
-    return all(c in ascii_lowercase for c in s)
+def is_valid_word(word: str, prev_word: str) -> bool:
+    return word.startswith(prev_word[-1]) and word != prev_word
 
+def is_valid_answer(answer: str, prev_word: str) -> bool:
+    return is_valid_word(answer, prev_word) and get_next_word(answer) is not None
 
-def check_word_existence(word: str) -> bool:
-    return word in Words.dawg
+async def send_admin_group(*args: Any, **kwargs: Any) -> Optional[types.Message]:
+    try:
+        return await bot.send_message(ADMIN_GROUP_ID, *args, **kwargs)
+    except Exception as e:
+        print(f"❌ Failed to send message to admin group (ID: {ADMIN_GROUP_ID}): {e}")
+        return None
 
+def format_word(word: str) -> str:
+    return f"**{word}**"
 
-def filter_words(
-    min_len: int = 1,
-    prefix: Optional[str] = None,
-    required_letter: Optional[str] = None,
-    banned_letters: Optional[List[str]] = None,
-    exclude_words: Optional[Set[str]] = None
-) -> List[str]:
-    # ✅ Compatible with both set and dawg/dict
-    if isinstance(Words.dawg, set):
-        words = [w for w in Words.dawg if prefix is None or w.startswith(prefix)]
-    else:
-        words = Words.dawg.keys(prefix) if prefix else Words.dawg.keys()
+def format_user(user: types.User) -> str:
+    name = get_current_username(user)
+    return f"[{name}](tg://user?id={user.id})"
 
-    if min_len > 1:
-        words = [w for w in words if len(w) >= min_len]
-    if required_letter:
-        words = [w for w in words if required_letter in w]
-    if banned_letters:
-        words = [w for w in words if all(i not in w for i in banned_letters)]
-    if exclude_words:
-        words = [w for w in words if w not in exclude_words]
-    return words
-
-
-def get_random_word(
-    min_len: int = 1,
-    prefix: Optional[str] = None,
-    required_letter: Optional[str] = None,
-    banned_letters: Optional[List[str]] = None,
-    exclude_words: Optional[Set[str]] = None
-) -> Optional[str]:
-    words = filter_words(min_len, prefix, required_letter, banned_letters, exclude_words)
-    return random.choice(words) if words else None
-
-
-async def send_admin_group(*args: Any, **kwargs: Any) -> types.Message:
-    return await bot.send_message(ADMIN_GROUP_ID, *args, **kwargs)
-
-
-@cached(ttl=15)
-async def amt_donated(user_id: int) -> int:
+def get_user_score(user: types.User, game: Game) -> int:
+    for player in game.players:
+        if player.user_id == user.id:
+            return player.score
     return 0
 
+def get_user(game: Game, telegram_user: types.User) -> Optional[User]:
+    for player in game.players:
+        if player.user_id == telegram_user.id:
+            return player
+    return None
 
-@cached(ttl=15)
-async def has_star(user_id: int) -> bool:
-    return user_id in VIP or user_id == on9bot.id
-
-
-def inline_keyboard_from_button(button: types.InlineKeyboardButton) -> types.InlineKeyboardMarkup:
-    return types.InlineKeyboardMarkup(inline_keyboard=[[button]])
-
-
-ADD_TO_GROUP_KEYBOARD = inline_keyboard_from_button(
-    types.InlineKeyboardButton("Add to group", url="https://t.me/on9wordchainbot?startgroup=_")
-)
-ADD_ON9BOT_TO_GROUP_KEYBOARD = inline_keyboard_from_button(
-    types.InlineKeyboardButton("Add On9Bot to group", url="https://t.me/On9Bot?startgroup=_")
-)
-
-
-def send_private_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
-    @wraps(f)
-    async def inner(message: types.Message, *args: Any, **kwargs: Any) -> None:
-        if message.chat.id < 0:
-            await message.reply("Please use this command in private.", allow_sending_without_reply=True)
-            return
-        await f(message, *args, **kwargs)
-    return inner
-
-
-def send_groups_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
-    @wraps(f)
-    async def inner(message: types.Message, *args: Any, **kwargs: Any) -> None:
-        if message.chat.id > 0:
-            await message.reply(
-                "This command can only be used in groups.",
-                allow_sending_without_reply=True, reply_markup=ADD_TO_GROUP_KEYBOARD
-            )
-            return
-        await f(message, *args, **kwargs)
-    return inner
-
-
-def get_user(user_id: int):
-    return False
-
-def add_user(user_id: int, username: str, first_name: str):
-    pass
-
-def get_group(chat_id: int):
-    return False
-
-def add_group(chat_id: int, title: str):
-    pass
+def get_last_word(game: Game) -> Optional[str]:
+    if game.words:
+        return game.words[-1]
+    return None
