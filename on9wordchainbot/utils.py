@@ -100,3 +100,10 @@ def send_groups_only_message(f: Callable[..., Any]) -> Callable[..., Any]:
         await f(message, *args, **kwargs)
 
     return inner
+
+
+# ✅ NEWLY ADDED FUNCTION
+async def get_user(user_id: int):
+    """Fetch a user from the database by their ID."""
+    async with pool.acquire() as conn:
+        return await conn.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
