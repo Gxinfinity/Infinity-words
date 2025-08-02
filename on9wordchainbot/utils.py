@@ -107,3 +107,29 @@ async def get_user(user_id: int):
     """Fetch a user from the database by their ID."""
     async with pool.acquire() as conn:
         return await conn.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
+
+# ✅ Fetch user from database
+async def get_user(user_id: int):
+    async with pool.acquire() as conn:
+        return await conn.fetchrow("SELECT * FROM users WHERE id = $1", user_id)
+
+# ✅ Add user to database
+async def add_user(user_id: int, username: str = None):
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "INSERT INTO users (id, username) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING;",
+            user_id, username
+        )
+
+# ✅ Fetch group from database
+async def get_group(group_id: int):
+    async with pool.acquire() as conn:
+        return await conn.fetchrow("SELECT * FROM groups WHERE id = $1", group_id)
+
+# ✅ Add group to database
+async def add_group(group_id: int, title: str = None):
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "INSERT INTO groups (id, title) VALUES ($1, $2) ON CONFLICT (id) DO NOTHING;",
+            group_id, title
+        )
