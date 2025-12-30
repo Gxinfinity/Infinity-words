@@ -1,33 +1,23 @@
 import asyncio
 import random
 import time
-import socket
 from decimal import ROUND_HALF_UP, getcontext
 
 from aiogram import executor
-from aiogram.client.session.aiohttp import AiohttpSession
 from periodic import Periodic
 
-from on9wordchainbot import dp, loop, pool
+from on9wordchainbot import dp, loop, pool, session
 from on9wordchainbot.utils import send_admin_group
 from on9wordchainbot.words import Words
-
-# 🔒 FORCE IPV4 SESSION (VERY IMPORTANT)
-session = AiohttpSession(
-    connector_kwargs={"family": socket.AF_INET}
-)
 
 random.seed(time.time())
 getcontext().rounding = ROUND_HALF_UP
 
 
 async def on_startup(_) -> None:
-    # Notify admin group
     await send_admin_group("Bot starting.")
-
     await Words.update()
 
-    # Update word list every 3 hours
     task = Periodic(3 * 60 * 60, Words.update)
     await task.start()
 
