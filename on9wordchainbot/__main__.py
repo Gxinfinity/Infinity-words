@@ -1,14 +1,21 @@
 import asyncio
 import random
 import time
+import socket
 from decimal import ROUND_HALF_UP, getcontext
 
 from aiogram import executor
+from aiogram.client.session.aiohttp import AiohttpSession
 from periodic import Periodic
 
-from on9wordchainbot import dp, loop, pool, session
+from on9wordchainbot import dp, loop, pool
 from on9wordchainbot.utils import send_admin_group
 from on9wordchainbot.words import Words
+
+# 🔒 FORCE IPV4 SESSION (VERY IMPORTANT)
+session = AiohttpSession(
+    connector_kwargs={"family": socket.AF_INET}
+)
 
 random.seed(time.time())
 getcontext().rounding = ROUND_HALF_UP
@@ -31,7 +38,11 @@ async def on_shutdown(_) -> None:
 
 def main() -> None:
     executor.start_polling(
-        dp, loop=loop, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True
+        dp,
+        loop=loop,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        skip_updates=True,
     )
 
 
