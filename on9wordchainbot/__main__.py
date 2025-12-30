@@ -15,9 +15,12 @@ getcontext().rounding = ROUND_HALF_UP
 
 
 async def on_startup(_) -> None:
+    # Notify admin group
     await send_admin_group("Bot starting.")
+
     await Words.update()
 
+    # Update word list every 3 hours
     task = Periodic(3 * 60 * 60, Words.update)
     await task.start()
 
@@ -28,13 +31,9 @@ async def on_shutdown(_) -> None:
 
 def main() -> None:
     executor.start_polling(
-        dp,
-        loop=loop,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
-        skip_updates=True,
+        dp, loop=loop, on_startup=on_startup, on_shutdown=on_shutdown, skip_updates=True
     )
 
 
-if __name__ == "__main__":
+if name == "main":
     main()
