@@ -32,7 +32,7 @@ else:
 loop = asyncio.get_event_loop()
 bot = Bot(
     TOKEN,
-    proxy="socks5://34.121.247.30:1080",
+    proxy="socks5://127.0.0.1:1080",
     parse_mode=types.ParseMode.MARKDOWN,
     disable_web_page_preview=True,
 )
