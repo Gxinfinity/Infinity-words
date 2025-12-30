@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import socket
 from datetime import datetime
 from typing import Dict, TYPE_CHECKING
 
@@ -15,7 +14,7 @@ if TYPE_CHECKING:
     from .models import ClassicGame
 
 try:
-    import coloredlogs  # pip install coloredlogs
+    import coloredlogs
 except ImportError:
     logging.basicConfig(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -30,7 +29,7 @@ else:
 logger = logging.getLogger(__name__)
 
 try:
-    import uvloop  # pip install uvloop
+    import uvloop
 except ImportError:
     logger.info(r"uvloop unavailable ¯\_(ツ)_/¯")
 else:
@@ -38,23 +37,19 @@ else:
 
 loop = asyncio.get_event_loop()
 
-# 🔒 FORCE IPV4 (MOST IMPORTANT PART)
-connector = aiohttp.TCPConnector(family=socket.AF_INET)
-session = aiohttp.ClientSession(connector=connector)
-
+# ✅ SIMPLE & CORRECT FOR aiogram 2.25.1
 bot = Bot(
     TOKEN,
-    session=session,
     parse_mode=types.ParseMode.MARKDOWN,
     disable_web_page_preview=True,
 )
 
-on9bot = Bot(
-    ON9BOT_TOKEN,
-    session=session,
-)
+on9bot = Bot(ON9BOT_TOKEN)
 
 dp = Dispatcher(bot)
+
+# Keep session only for your own HTTP / shutdown logic
+session = aiohttp.ClientSession()
 
 pool: asyncpg.pool.Pool
 
